@@ -1,0 +1,42 @@
+FROM ubuntu:22.04
+
+# Avoid prompts during apt installs
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update packages and install dependencies
+RUN apt-get update && apt-get install -y \
+    openssh-server \
+    gnupg \
+    wget \
+    curl \
+    iputils-ping \
+    sudo \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install MySQL and PostgreSQL Client CLI tools
+RUN apt-get update && apt-get install -y \
+    mysql-client \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Add MongoDB GPG key and repository, and install mongosh (MongoDB Shell)
+RUN wget -qO- https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/mongodb-org-7.0.gpg && \
+    echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list && \
+    apt-get update && apt-get install -y mongodb-mongosh && \
+    rm -rf /var/lib/apt/lists/*
+
+# Configure SSH daemon settings
+RUN mkdir /var/run/sshd
+RUN echo 'root:password' | chpasswd
+
+# Enable root login and password-based auth
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+# Setup a non-root test user as well
+RUN useradd -rm -d /home/test -s /bin/bash -g root -G sudo -u 1000 test
+RUN echo 'test:password' | chpasswd
+
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]
