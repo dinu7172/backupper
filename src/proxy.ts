@@ -40,7 +40,7 @@ export const proxy = auth((req) => {
   }
 });
 
-// Match all routes except static assets
+// Match all routes except static assets and auth API
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api/auth|_next/static|_next/image|favicon.ico).*)'],
 };

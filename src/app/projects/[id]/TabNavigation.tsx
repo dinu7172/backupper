@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Server, Database, Calendar, Settings } from 'lucide-react';
+import { LayoutDashboard, Server, Database, Calendar, Settings, Folder } from 'lucide-react';
 
 interface TabNavigationProps {
   projectId: string;
@@ -29,6 +29,12 @@ export default function TabNavigation({ projectId }: TabNavigationProps) {
       href: `/projects/${projectId}/databases`,
       icon: Database,
       active: pathname.startsWith(`/projects/${projectId}/databases`),
+    },
+    {
+      name: 'File Backups',
+      href: `/projects/${projectId}/files`,
+      icon: Folder,
+      active: pathname.startsWith(`/projects/${projectId}/files`),
     },
   ];
 
